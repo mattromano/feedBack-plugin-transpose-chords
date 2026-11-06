@@ -128,9 +128,20 @@
             : 'px-3 py-1.5 bg-dark-600 hover:bg-dark-500 rounded-lg text-xs text-gray-400 transition';
         button.textContent = 'Transpose Chords';
         button.title = 'Toggle chord transposition to E Standard';
-        button.onclick = toggle;
+        button.onclick = () => { toggle(); saveChoice(); };
         if (last && last.parentNode === controls) controls.insertBefore(button, last); else controls.appendChild(button);
-        button.click(); // Trigger initial state to apply to current song if loaded
+        // Off by default; restore the player's own last choice. (This used to
+        // call button.click() here, which switched transposition ON at every
+        // launch whether the player wanted it or not.)
+        if (savedChoice()) toggle();
+    }
+
+    const STORAGE_KEY = 'transposeChords.active';
+    function savedChoice() {
+        try { return window.localStorage.getItem(STORAGE_KEY) === '1'; } catch (_) { return false; }
+    }
+    function saveChoice() {
+        try { window.localStorage.setItem(STORAGE_KEY, active ? '1' : '0'); } catch (_) { /* per session then */ }
     }
 
     function toggle() {
